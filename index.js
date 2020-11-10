@@ -1,68 +1,76 @@
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
 const port = 3000;
 const jwt = require('jsonwebtoken');
+const models = require('./models');
 const config ={
   secretKey: 'superSecretKeysuperSecretKeysuperSecretKeysuperSecretKeysuperSecretKeysuperSecretKey',
-
 }
 
 app.use(express.json());
-
-const generateMessage = require("./messageGen");
-
 
 const authorizationMiddleware = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization) {
-      return res.status(401).send({
-          status: "ok",
-      });
+      return res
+      .status(401)
+      .send({
+          status: "No auth found! Bye"
+        }
+      );
   } else {
-      const jwtToken = authorization.replace("Bearer ", "");
+      const jwtToken = authorization.replace("Bearer ", ""); // scoate Bearer din string
       jwt.verify(jwtToken, config.secretKey, (err, decoded) => {
           if (err) {
-              res.status(401).send({
-                  status: "not ok",
-              });
+              res
+              .status(401)
+              .send({
+                  status: "Not ok"
+                }
+              );
           } else {
               next();
           }
       });
-  }
+    }
 };
 
 app.post("/graphql", authorizationMiddleware, (req, res) => {
-  res.send({
-      status: "ok",
-  });
+  console.log("Successfully authenticated");
+  res.send(
+    {
+      status: "ok"
+    }
+    );
 });
 
 app.post("/graphql/public", (req, res) => {
   const { user, pass } = req.body;
-  // console.log(req.body);
+
   if (user === "user" && pass === "pass") {
       jwt.sign({}, config.secretKey, (err, token) => {
           res.send({
-              token,
+              token // echivalent cu token: token
           });
       });
   } else {
       res.status(401).send({
-          status: "NOT ok",
+          status: "NOT ok"
       });
   }
 });
 
-app.get('/route', /* aici s-ar pune middleware-uri*/ function(req, res) {
-    generateMessage()
-    .then((body) => {
-      console.log(body);
-        const {text, createdAt} = body;
-        res.send('Factul este ' + text + '\n\nCreat la ' + createdAt);
-    })
+
+app.get('/users/:userId', async(req, res) => {
+  const userId = req.params.userId;
+  const user = await models.User.findByPk(userId);
+
+  console.log(user.firstName, user.lastName);
+  
+  res.send({
+    status: 'OK'
+  });
 });
 
 app.listen(port,function() {
