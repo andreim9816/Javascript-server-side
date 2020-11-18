@@ -27,7 +27,7 @@ npx sequelize-cli seed:generate --name demo-users
 
 ## Populate database
 ``` code
-npx sequelize-cli seed:all
+npx sequelize-cli db:seed:all
 ```
 
 ## Config change to
