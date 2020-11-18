@@ -20,7 +20,7 @@ npx sequelize-cli model:generate --name User --attributes firstName:string,lastN
 npx sequelize-cli db:migrate
 ```
 
-## Generate js 
+## Generate seeder js 
 ``` code
 npx sequelize-cli seed:generate --name demo-users
 ```
